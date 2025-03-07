@@ -1,109 +1,83 @@
-# Arduino Ultrasonic Distance Measurement with PING (28015) Sensor and LED Alert
+# Home Automation System using Arduino  
 
-## 1. Introduction
-This project measures the distance to an object using the **Parallax PING))) (28015) Ultrasonic Sensor** and an **Arduino Uno**. If the measured distance is **less than 10 cm**, a **red LED** turns **ON**; otherwise, it remains **OFF**. The measured distance is displayed on the **Serial Monitor**.
-
----
-
-## 2. Components Required
-- **Arduino Uno**
-- **Parallax PING (28015) Ultrasonic Sensor**
-- **Red LED**
-- **220Ω Resistor**
-- **Jumper Wires**
+## 1. Introduction  
+This home automation system automates household devices using an **Arduino Uno**, enhancing convenience and energy efficiency. The system consists of:  
+- **Light (LED):** Adjusts brightness based on ambient light.  
+- **Fan (DC Motor):** Turns on when motion is detected.  
+- **Door (Servo Motor):** Opens when motion is detected.  
+- **PIR Sensor:** Detects movement to trigger the fan and door.  
+- **LDR Sensor:** Monitors light levels to adjust LED brightness.  
 
 ---
 
-## 3. Circuit Diagram & Connections
-
-### Ultrasonic Sensor to Arduino Connections:
-| **PING Pin** | **Arduino Uno Pin** |
-|--------------|----------------|
-| **VCC**      | **5V**         |
-| **GND**      | **GND**        |
-| **SIG**      | **D9**         |
-
-### LED to Arduino Connection:
-| **LED Pin**  | **Arduino Uno Pin** |
-|-----------|----------------|
-| **Anode (+) (Long Leg)** | **D6** |
-| **Cathode (-) (Short Leg)** | **GND via 220Ω Resistor** |
+## 2. Components Used  
+- **Arduino Uno** – Main microcontroller  
+- **LDR (Light Dependent Resistor)** – Detects ambient light  
+- **LED** – Represents the room light  
+- **PIR Sensor** – Detects human motion  
+- **Servo Motor** – Represents an automatic door  
+- **DC Motor with L293D Motor Driver** – Controls a fan  
+- **9V Battery** – Powers the motor  
 
 ---
 
-## 4. Code Explanation
+## 3. Working Principle  
 
-### 4.1 Pin Definitions
-- **pingPin (D9):** Controls the PING))) sensor (both trigger & echo).
-- **redLED (D6):** Controls the red LED.
+### 3.1 Automatic Light Control  
+- The LDR continuously measures ambient light intensity.  
+- The system adjusts the LED brightness accordingly using PWM.  
+- If the room is dark, the LED brightens; if bright, the LED dims.  
 
-### 4.2 Setup Function
-- Initializes the **LED pin as OUTPUT**.
-- Starts the **Serial Monitor** at `9600` baud rate.
-
-### 4.3 Loop Function
-1. **Triggering the Sensor:**
-   - The sensor pin is set to **OUTPUT**.
-   - A **short LOW pulse (2µs)** is sent.
-   - A **HIGH pulse (10µs)** is sent to trigger the sensor.
-   - The pin is set back to **INPUT** to receive the echo.
-
-2. **Measuring Distance:**
-   - The `pulseIn()` function measures the time taken for the echo to return.
-   - If no echo is received, it prints **"No echo received!"** and exits.
-   - The **duration is converted to distance (cm):**
-     ```
-     Distance = (Duration / 29) / 2
-     ```
-
-3. **LED Alert Logic:**
-   - If **distance < 10 cm**, the **LED turns ON**.
-   - Otherwise, the **LED turns OFF**.
-
-4. **Serial Output:**
-   - The measured distance is printed on the **Serial Monitor**.
+### 3.2 Motion-Activated Fan and Door  
+- The PIR sensor detects motion.  
+- When motion is detected:  
+  - The **door (servo motor) opens**.  
+  - The **fan (DC motor) starts running**.  
+  - The **light (LED) turns on at full brightness**.  
+- After **5 seconds**, the system resets:  
+  - The door closes.  
+  - The fan turns off.  
+  - The light brightness returns to LDR-based control.  
 
 ---
 
-## 5. Full Arduino Code
-```cpp
-const int pingPin = 9; 
-const int redLED = 6;  
+## 4. Circuit Connections  
 
-void setup() {
-    pinMode(redLED, OUTPUT);
-    Serial.begin(9600);
-}
+| **Component**          | **Arduino Pin** | **Function**                     |  
+|----------------------|---------------|---------------------------------|  
+| **LDR Sensor**       | A0            | Reads ambient light levels      |  
+| **LED (Light)**      | 9 (PWM)       | Adjusts brightness automatically |  
+| **PIR Sensor**       | 2             | Detects motion                  |  
+| **Servo Motor (Door)** | 3             | Opens/closes the door           |  
+| **L293D Enable (Fan Speed)** | 5 (PWM)       | Controls fan speed              |  
+| **L293D Input 1 (Fan Direction)** | 6             | Forward direction control      |  
+| **L293D Input 2 (Fan Direction)** | 7             | Reverse (not used)             |  
 
-void loop() {
-    pinMode(pingPin, OUTPUT);
-    digitalWrite(pingPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(pingPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(pingPin, LOW);
+---
 
-    pinMode(pingPin, INPUT);
-    long duration = pulseIn(pingPin, HIGH, 50000);
+## 5. System Workflow  
 
-    if (duration == 0) {
-        Serial.println("No echo received! Check sensor.");
-        digitalWrite(redLED, LOW);
-        delay(500);
-        return;
-    }
+1. **Light Control with LDR**  
+   - The system continuously monitors the ambient light using the LDR.  
+   - The LED brightness is adjusted automatically based on the light intensity.  
 
-    int distance = duration / 29 / 2;
+2. **Motion Detection with PIR Sensor**  
+   - The PIR sensor detects movement in the room.  
+   - If motion is detected:  
+     - The **door (servo) opens**.  
+     - The **fan (DC motor) turns ON**.  
+     - The **LED turns ON fully**.  
+   - After **5 seconds**, the system resets:  
+     - The door closes.  
+     - The fan stops.  
+     - The light brightness returns to normal.  
 
-    Serial.print("Distance: ");
-    Serial.print(distance);
-    Serial.println(" cm");
+---
 
-    if (distance < 10) {
-        digitalWrite(redLED, HIGH);
-    } else {
-        digitalWrite(redLED, LOW);
-    }
+## 6. Future Enhancements  
+- **Wi-Fi Connectivity:** Integrate with ESP8266 for remote control.  
+- **Voice Control:** Enable Google Assistant or Alexa support.  
+- **Temperature-Based Fan Control:** Adjust fan speed based on temperature.  
+- **Mobile App Integration:** Control and monitor the system remotely.  
 
-    delay(500);
-}
+This home automation system provides energy-efficient and automated control of household appliances, improving convenience and security. 🚀
