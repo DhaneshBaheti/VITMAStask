@@ -45,13 +45,13 @@ This home automation system automates household devices using an **Arduino Uno**
 
 | **Component**          | **Arduino Pin** | **Function**                     |  
 |----------------------|---------------|---------------------------------|  
-| **LDR Sensor**       | A0            | Reads ambient light levels      |  
-| **LED (Light)**      | 9 (PWM)       | Adjusts brightness automatically |  
-| **PIR Sensor**       | 2             | Detects motion                  |  
-| **Servo Motor (Door)** | 3             | Opens/closes the door           |  
+| **LDR Sensor**       | A3            | Reads ambient light levels      |  
+| **LED (Light)**      | 4 (PWM)       | Adjusts brightness automatically |  
+| **PIR Sensor**       | 12             | Detects motion                  |  
+| **Servo Motor (Door)** | 9             | Opens/closes the door           |  
 | **L293D Enable (Fan Speed)** | 5 (PWM)       | Controls fan speed              |  
-| **L293D Input 1 (Fan Direction)** | 6             | Forward direction control      |  
-| **L293D Input 2 (Fan Direction)** | 7             | Reverse (not used)             |  
+| **L293D Input 1 (Fan Direction)** | 2            | Forward direction control      |  
+| **L293D Input 2 (Fan Direction)** | 3             | Reverse (not used)             |  
 
 ---
 
