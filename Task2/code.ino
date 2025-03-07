@@ -1,12 +1,13 @@
 #include <Servo.h>
 
-const int LDR_PIN = A0;        
-const int LED_PIN = 9;         
-const int PIR_PIN = 2;         
-const int MOTOR_ENABLE = 5;    
-const int MOTOR_INPUT1 = 6;    
-const int MOTOR_INPUT2 = 7;    
-const int SERVO_PIN = 3;       
+// Define pin connections
+const int LDR_PIN = A3;        // LDR connected to Analog Pin A0
+const int LED_PIN = 4;         // LED connected to PWM Pin 9
+const int PIR_PIN = 12;         // PIR sensor input on Digital Pin 2
+const int MOTOR_ENABLE = 5;    // L293D Enable pin (PWM for speed control)
+const int MOTOR_INPUT1 = 2;    // L293D Input1
+const int MOTOR_INPUT2 = 3;    // L293D Input2
+const int SERVO_PIN = 8;       // Servo connected to Pin 3
 
 Servo myServo;
 
@@ -18,33 +19,41 @@ void setup() {
     pinMode(MOTOR_INPUT2, OUTPUT);
 
     myServo.attach(SERVO_PIN);
+
     Serial.begin(9600);
 }
 
 void loop() {
-    int lightValue = analogRead(LDR_PIN);  
-    int brightness = map(lightValue, 0, 1023, 255, 0);  
-    analogWrite(LED_PIN, brightness);  
+    // LDR based LED brightness control
+    int lightValue = analogRead(LDR_PIN);  // Read LDR value (0-1023)
+    int brightness = map(lightValue, 0, 1023, 255, 0);  // Convert to PWM (inverted)
+    analogWrite(LED_PIN, brightness);  // Adjust LED brightness
+    Serial.print("LDR Value: ");
+    Serial.println(lightValue);
 
-    if (brightness > 0) {
-        Serial.print("LED Brightness: ");
-        Serial.println(brightness);
-    }
-
-    int pirState = digitalRead(PIR_PIN);  
+    // PIR Sensor based control
+    int pirState = digitalRead(PIR_PIN);  // Read PIR sensor state
     if (pirState == HIGH) {
-        myServo.write(90);  
+        Serial.println("Motion detected!");
+
+        // Move Servo
+        myServo.write(90);  // Move to 90 degrees
+
+        // Turn ON Motor (Forward direction)
         digitalWrite(MOTOR_INPUT1, HIGH);
         digitalWrite(MOTOR_INPUT2, LOW);
-        analogWrite(MOTOR_ENABLE, 200); 
+        analogWrite(MOTOR_ENABLE, 200); // Moderate speed
+
+        // Turn ON LED
         digitalWrite(LED_PIN, HIGH);
 
-        delay(5000);  
+        delay(5000);  // Keep devices ON for 5 seconds
 
-        myServo.write(0);  
+        // Reset System
+        myServo.write(0);  // Move servo back to 0 degrees
         digitalWrite(MOTOR_INPUT1, LOW);
         digitalWrite(MOTOR_INPUT2, LOW);
-        analogWrite(MOTOR_ENABLE, 0);  
-        digitalWrite(LED_PIN, LOW);  
+        analogWrite(MOTOR_ENABLE, 0);  // Stop motor
+        digitalWrite(LED_PIN, LOW);  // Turn off LED
     }
 }
